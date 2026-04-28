@@ -1,4 +1,5 @@
 /**
+ * // Versione 2 completata: filtri disponibilità, gestione ritardi, storico operazioni
  * @fileoverview Classe principale Biblioteca — gestisce libri, prestiti e storico.
  * @module Biblioteca
  * @author Studente

@@ -1,78 +1,81 @@
-/**
- * @fileoverview Punto di ingresso dell'applicazione — demo delle funzionalità.
- * @module main
- * @author Studente
- * @version 2.0.0
- *
- * @example
- * // Avvio:
- * node main.js
- */
-
 "use strict";
 
+// Versione interattiva del progetto Biblioteca
+const readline = require("readline");
 const Biblioteca = require("./Biblioteca");
 
-// ─────────────────────────────────────────────
-// INIZIALIZZAZIONE
-// ─────────────────────────────────────────────
-const bib = new Biblioteca("La Mia Biblioteca Personale");
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
 
-// ─────────────────────────────────────────────
-// VERSIONE 1 – BASE
-// ─────────────────────────────────────────────
+const bib = new Biblioteca("Biblioteca Interattiva");
 
-console.log("\n=== VERSIONE 1 – REGISTRAZIONE LIBRI ===");
-
-bib.registraLibro("IT001", "Il Nome della Rosa", "Umberto Eco");
-bib.registraLibro("IT002", "Se questo è un uomo", "Primo Levi");
-bib.registraLibro("IT003", "La coscienza di Zeno", "Italo Svevo");
-bib.registraLibro("IT004", "I Malavoglia", "Giovanni Verga");
-bib.registraLibro("IT005", "Uno nessuno centomila", "Luigi Pirandello");
-
-console.log("\n=== VERSIONE 1 – PRESTITI ===");
-
-bib.prestaLibro("IT001", "Marco Rossi");
-bib.prestaLibro("IT003", "Giulia Bianchi");
-
-console.log("\n=== VERSIONE 1 – RESTITUZIONE ===");
-
-bib.restituisciLibro("IT001");
-
-// ─────────────────────────────────────────────
-// VERSIONE 2 – AVANZATA
-// ─────────────────────────────────────────────
-
-console.log("\n=== VERSIONE 2 – DISPONIBILITÀ ===");
-
-console.log("\nLibri disponibili:");
-bib.libriDisponibili().forEach((l) => console.log("  →", l.toString()));
-
-console.log("\nLibri in prestito:");
-bib.libriInPrestito().forEach((l) => console.log("  →", l.toString()));
-
-// Simula un prestito vecchio per test ritardi
-console.log("\n=== VERSIONE 2 – GESTIONE RITARDI ===");
-
-const dataVecchia = new Date();
-dataVecchia.setDate(dataVecchia.getDate() - 45); // 45 giorni fa
-bib.prestaLibro("IT002", "Luca Ferrari", dataVecchia);
-
-const ritardi = bib.prestitiInRitardo(30);
-if (ritardi.length > 0) {
-  console.log(`\n⚠️  Prestiti oltre 30 giorni:`);
-  ritardi.forEach((l) =>
-    console.log(
-      `   - "${l.titolo}" → ${l.prestito.nomeLettore} (${l.prestito.giorniInPrestito()} giorni)`
-    )
-  );
-} else {
-  console.log("Nessun prestito in ritardo.");
+function ask(domanda) {
+  return new Promise((resolve) => rl.question(domanda, resolve));
 }
 
-// ─────────────────────────────────────────────
-// RIEPILOGO E STORICO
-// ─────────────────────────────────────────────
+async function menu() {
+  while (true) {
+    console.log("\n===== MENU BIBLIOTECA =====");
+    console.log("1. Registra libro");
+    console.log("2. Presta libro");
+    console.log("3. Restituisci libro");
+    console.log("4. Mostra libri disponibili");
+    console.log("5. Mostra libri in prestito");
+    console.log("6. Mostra stato biblioteca");
+    console.log("7. Mostra storico");
+    console.log("0. Esci");
 
-bib.stampaStato();
-bib.stampaStorico();
+    const scelta = await ask("Scelta: ");
+
+    try {
+      switch (scelta.trim()) {
+        case "1": {
+          const codice = await ask("Codice: ");
+          const titolo = await ask("Titolo: ");
+          const autore = await ask("Autore: ");
+          bib.registraLibro(codice, titolo, autore);
+          break;
+        }
+        case "2": {
+          const codice = await ask("Codice libro: ");
+          const nome = await ask("Nome lettore: ");
+          bib.prestaLibro(codice, nome);
+          break;
+        }
+        case "3": {
+          const codice = await ask("Codice libro: ");
+          bib.restituisciLibro(codice);
+          break;
+        }
+        case "4": {
+          const libri = bib.libriDisponibili();
+          libri.forEach((l) => console.log(l.toString()));
+          break;
+        }
+        case "5": {
+          const libri = bib.libriInPrestito();
+          libri.forEach((l) => console.log(l.toString()));
+          break;
+        }
+        case "6":
+          bib.stampaStato();
+          break;
+        case "7":
+          bib.stampaStorico();
+          break;
+        case "0":
+          console.log("Arrivederci!");
+          rl.close();
+          return;
+        default:
+          console.log("Scelta non valida.");
+      }
+    } catch (err) {
+      console.log("Errore:", err.message);
+    }
+  }
+}
+
+menu();

@@ -133,7 +133,19 @@ class Biblioteca {
    * @returns {Libro[]} Lista dei libri con stato "in prestito".
    */
   libriInPrestito() {
-    return [...this.catalogo.values()].filter((l) => !l.isDisponibile());
+        return [...this.catalogo.values()].filter((l) => !l.isDisponibile());
+  }
+  /**
+   * Cerca un libro per parola chiave.
+   * @returns {Libro} Libro filtrato per keyWord.
+   */
+  filtraLibro(keyWord){
+    const parola=keyWord.toLowerCase();
+
+    return [...this.catalogo.values()].filter((libro)=>
+      libro.titolo.toLowerCase().includes(parola) || 
+      libro.autore.toLowerCase().includes(parola)
+  );
   }
 
   /**
